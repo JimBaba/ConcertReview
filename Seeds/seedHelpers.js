@@ -1,4 +1,4 @@
-const descriptors = [
+module.exports.descriptors = [
     'White',
     'Red',
     'Black',
@@ -19,7 +19,7 @@ const descriptors = [
 
 ]
 
-const places = [
+module.exports.places = [
     'Eck',
     'Kasten',
     'Bar',
@@ -33,6 +33,7 @@ const places = [
     'Stage',
     'Floor',
     'Kneipe',
+    'Hole',
     'Club',
     'Bass',
     'Tunnel',
