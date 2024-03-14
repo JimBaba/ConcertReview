@@ -1,24 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Club</title>
-</head>
-<body>
-    <h2>Edit Club</h2>
-    <form action="/clubs/<%= club._id %>?_method=PUT" method="POST">
-        <div>
-            <label for="title">Name</label>
-            <input type="text" id="title" name="club[title]" value="<%= club.title %>">
+<% layout('/layouts/boilerplate') %>
+    <div class="row">
+        <h1 class="text-center">Edit Club</h1>
+        <div class="col-6 offset-3">
+            <form action="/clubs/<%= club._id %>?_method=PUT" method="POST">
+                <div class="mb-4">
+                    <label class="form-label" for="title">Name</label>
+                    <input class="form-control" type="text" id="title" name="club[title]" value="<%= club.title %>">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="location">Location</label>
+                    <input class="form-control" type="text" id="location" name="club[location]"value="<%= club.location %>">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="price">Eintritt</label>
+                    <div class="input-group">
+                        <span class="input-group-text" id="price-label">€</span>
+                        <input class="form-control" type="text" name="club[price]" id="price" placeholder="0,00" aria-describedby="price-label" value="<%= club.price %>">
+                    </div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="image">Image URL</label>
+                    <input class="form-control" type="text" id="image" name="club[image]" value="<%= club.image %>">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="description">Beschreibung</label>
+                    <textarea class="form-control" type="text" id="description" name="club[description]"><%= club.description %></textarea>
+                </div>
+                <div class="mb-3">
+                    <button class="btn btn-success">Update Club</button>
+                </div>
+                
+            </form>
+            <a href="/clubs/<%= club._id %>">Back to Club</a> <a href="/clubs">All Clubs</a>
         </div>
-        <div>
-            <label for="location">Location</label>
-            <input type="text" id="location" name="club[location]" value="<%= club.location %>">
-        </div>
-        <button>Save Edit</button>
-
-    </form>
-    <a href="/clubs">All Clubs</a> <div><a href="/clubs/<%= club._id %>">Show Club Details</a></div>
-</body>
-</html>
+    </div>

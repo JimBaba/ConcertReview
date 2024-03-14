@@ -1,20 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Clubs</title>
-</head>
-<body>
+<% layout('/layouts/boilerplate') %>
+
     <h1>All Clubs</h1>
-    <div>
-        <a href="/clubs/new">Add new club</a>
-    </div>
-    <ul>
+
+
         <% for(let club of clubs) { %>
-           <li><a href='/clubs/<%= club._id %>'><%= club.title %></a></li>
+            <div class="card mb-3">
+                <div class="row">
+                    <div class="col-md-4">
+                        <img class="img-fluid rounded" alt="" src="<%= club.image %>">
+                        <p class="card-text">
+                            <small style="color:gray;"><%= club.location %></small>
+                        </p>
+                    </div>
+
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= club.title %></h5>
+                            <p class="card-text" style="width: 800px;white-space: nowrap;overflow: hidden;text-overflow: ellipsis;"><%= club.description %></p>
+                            <a class="btn btn-outline-dark" href="/clubs/<%= club._id %>">Read More</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         <% } %>
-    </ul>
-</body>
-</html>
+
+
+
 
