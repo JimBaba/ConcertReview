@@ -2,7 +2,7 @@
 
 
     <div class="row">
-        <div class="col-6 offset-3">
+        <div class="col-6">
             <div class="card mb-3">
                 <img src="<%= club.image %>" class="card-img-top" alt="image <%= club.title %>">
                 <div class="card-body">
@@ -31,5 +31,37 @@
                     last edited 2 days ago
                 </div>
             </div>
+            </div>
+            <div class="col-6">
+            <h2>Leave a review</h2>
+            <form action="/clubs/<%= club._id %>/reviews" method="POST" class="mb-3 validated-form" novalidate>
+                <div class="mb-3">
+                    <label class="form-label" for="rating">Rating</label>
+                    <input class="form-control" type="range" name="review[rating]" id="reviewRating" min="0" max="5">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="body">Review</label>
+                    <textarea class="form-control" name="review[body]" id="reviewBody" cols="30" rows="5" required></textarea>
+                    <div class="invalid-feedback">
+                        Write something, you lazy fuck!
+                    </div>
+                </div>
+                <button class="btn btn-success">Save</button>
+            </form>
+                <% for(let review of club.reviews) { %>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                Rating: <%= review.rating %>
+                            </h5>
+                            <p class="card-text">
+                                Review: <%= review.body %>
+                            </p>
+                            <form action="/clubs/<%= club._id %>/reviews/<%= review._id %>?_method=DELETE" method="POST">
+                            <button class="btn btn-sm btn-danger">Delete</button>
+                            </form>
+                        </div>
+                    </div>
+                <% } %>
         </div>
     </div>
