@@ -3,15 +3,28 @@ const app = express()
 const port = 3000
 const path = require('path')
 const ejsMate = require('ejs-mate')
-const catchAsync = require('./utilities/catchAsync')
+const session = require('express-session')
+const flash = require('connect-flash')
 const AppError = require('./utilities/AppError')
 const methodOverride = require('method-override')
 const mongoose = require('mongoose')
 mongoose.connect('mongodb://127.0.0.1:27017/clubreviews', {})
 const db = mongoose.connection
-const Club = require('./models/club.js')
-const Review = require('./models/review.js')
-const { clubSchema, reviewSchema } = require('./schemas.js')
+// const Club = require('./models/club.js')
+// const Review = require('./models/review.js')
+// const { clubSchema, reviewSchema } = require('./schemas.js')
+const clubs = require('./routes/clubs.js')
+const reviews = require('./routes/reviews.js')
+const sessionConfig = {
+    secret: 'thisneedstobeabettersecret', 
+    resave: false, 
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        expires: Date.now() + 1000 * 60 * 60 * 7,
+        maxAge: 1000 * 60 * 60 * 7
+    }
+}
 
 db.on("error", console.error.bind(console, "connection error: "))
 db.once("open", () => {
@@ -21,32 +34,27 @@ db.once("open", () => {
 app.engine('ejs', ejsMate)
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
+
+
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride('_method'))
+app.use(express.static(path.join(__dirname, 'public')))
 
-// APP FUNCTIONS START
+app.use(session(sessionConfig))
+app.use(flash())
 
-const validateClub = (req, res, next) => {
-    const { error } = clubSchema.validate(req.body)
-    if (error) {
-        const msg = error.details.map(el => el.message).join(', ')
-        throw new AppError(msg, 400)
-    } else {
-        next()
-    }
-}
+// APP MIDDLEWARE START
 
-const validateReview = (req, res, next) => {
-    const { error } = reviewSchema.validate(req.body)
-    if (error) {
-        const msg = error.details.map(el => el.message).join(', ')
-        throw new AppError(msg, 400)
-    } else {
-        next()
-    }
-}
+app.use((req,res,next) => {
+    res.locals.success = req.flash('success')
+    res.locals.error = req.flash('error')
+    next()
+})
 
-// APP FUNCTIONS END
+app.use('/clubs', clubs)
+app.use('/clubs/:id/reviews', reviews)
+
+// APP MIDDLEWARE END
 
 // CLUB ROUTES START
 
@@ -55,67 +63,7 @@ app.get('/', (req, res) => {
     res.render('home')
 })
 
-app.get('/clubs/new', (req, res) => {
-    res.render('clubs/new')
-})
-
-app.get('/clubs', catchAsync(async (req, res) => {
-    const clubs = await Club.find()
-    res.render('./clubs/index', { clubs })
-}))
-
-app.get('/clubs/:id', catchAsync(async (req, res) => {
-    const club = await Club.findById(req.params.id).populate('reviews')
-    res.render('clubs/show', { club })
-}))
-
-app.get('/clubs/:id/edit', catchAsync(async (req, res) => {
-    const club = await Club.findById(req.params.id)
-    res.render('clubs/edit', { club })
-}))
-
-app.post('/clubs', validateClub, catchAsync(async (req, res, next) => {
-
-    const club = new Club(req.body.club)
-    await club.save()
-    res.redirect(`/clubs/${club._id}`)
-}))
-
-app.put('/clubs/:id', validateClub, catchAsync(async (req, res) => {
-    const { id } = req.params
-    const club = await Club.findByIdAndUpdate(id, { ...req.body.club })
-    res.redirect(`/clubs/${club._id}`)
-}))
-
-app.delete('/clubs/:id', catchAsync(async (req, res) => {
-    const club = await Club.findByIdAndDelete(req.params.id)
-    /* const clubs = await Club.find({})
-    res.render('./clubs/index', { clubs }) */
-    res.redirect('/clubs')
-}))
-
 // CLUB ROUTES END
-
-// REVIEW ROUTES START
-
-app.post('/clubs/:id/reviews', validateReview, catchAsync(async (req, res) => {
-    const id = req.params.id
-    const club = await Club.findById(id)
-    const review = new Review(req.body.review)
-    club.reviews.push(review)
-    await review.save()
-    await club.save()
-    res.redirect(`/clubs/${id}`)
-}))
-
-app.delete('/clubs/:id/reviews/:reviewId', catchAsync(async(req,res) => {
-    const {id, reviewId} = req.params
-    const club = await Club.findByIdAndUpdate(id, {$pull: {reviews: reviewId}})
-    const review = await Review.findByIdAndDelete(reviewId)
-    res.redirect(`/clubs/${club._id}`)
-}))
-
-// REVIEW ROUTES END
 
 // ERROR HANDLING START
 
